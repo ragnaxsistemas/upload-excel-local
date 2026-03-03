@@ -50,11 +50,17 @@ const inicializarDirectorios = () => {
 inicializarDirectorios();
 
 const storage = multer.diskStorage({
-  destination: (req, file, cb) => cb(null, UPLOAD_DIR),
+  destination: (req, file, cb) => {
+    if (!fs.existsSync(UPLOAD_DIR)) {
+      fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+    }
+    cb(null, UPLOAD_DIR);
+  },
   filename: (req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    // Quitamos el uniqueSuffix (timestamp)
+    // Solo reemplazamos espacios por guiones bajos para que Linux no tenga problemas
     const safeName = file.originalname.replace(/\s+/g, '_');
-    cb(null, uniqueSuffix + '-' + safeName);
+    cb(null, safeName);
   }
 });
 
